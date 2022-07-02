@@ -1,0 +1,54 @@
+```{r}
+library(tidyverse)
+library(ggplot2)
+library("plyr")
+library("reshape")
+library("tidymodels")
+library("GGally")
+library("IMTest")
+library(dplyr)
+```
+```{r}
+air = airquality
+air2 = air %>% drop_na()
+
+ggpairs(air2)
+ggcorr(air2, label = TRUE)
+
+lm_fit <- lm(Ozone ~ Temp, data = air2)
+summary(lm_fit)
+
+
+ggplot(air2, aes(x=Temp, y=Ozone))+
+  geom_point+
+  geom_smooth(method = "lm", color="red")+
+  theme_bw()
+```
+```{r}
+air_fit = recipe(Ozone ~ Temp, air2)
+air_fit
+```
+```{r}
+lm_model= 
+  linear_reg() %>%
+set_engine("lm")
+```
+```{r}
+lm_wflow=
+  workflow() %>%
+  add_model(lm_model) %>%
+  add_recipe (air_fit)
+```
+```{r}
+lm_fit = fit(lm_wflow, air2)
+```
+```{r}
+summary(lm_fit$fit$fit$fit)
+```
+```{r}
+confint(lm_fit$fit$fit$fit)
+
+69.37059+0.20006*80
+-147.6461+2.4391*80
+```
+

@@ -1,0 +1,41 @@
+## Classification Tree Lets Try This Again
+
+Libraries  
+```{r,include = FALSE}
+library(titanic)
+library(tidyverse)
+library(tidymodels)
+library(mice) #package for imputation
+library(VIM) #visualizing missingness
+library(rpart) #for classification trees
+library(rpart.plot) #for plotting trees
+library(RColorBrewer) #better visualization of classification trees
+library(rattle) #better visualization of classification trees
+library(caret)
+```
+
+Read in Dataset
+```{r}
+heart_disease <- read_csv("heart_disease-1 (1).csv")
+View(heart_disease_1_1_)
+```
+Structure and Summary
+```{r}
+str(heart_disease)
+summary(heart_disease)
+```
+Factor Converting and Recoding
+```{r}
+heart_disease = heart_disease %>% 
+  mutate(Sex = as_factor(Sex)) %>% 
+  mutate(ChestPainType = as_factor(ChestPainType)) %>% 
+  mutate(RestingECG = as_factor(RestingECG)) %>% 
+  mutate(ExerciseAngina = as_factor(ExerciseAngina)) %>%
+  mutate(ST_Slope = as_factor(ST_Slope)) %>%
+  mutate(HeartDisease = as_factor(HeartDisease)) %>%
+  mutate(HeartDisease = fct_recode(HeartDisease,"No" = "0", "Yes" = "1")) %>%
+  select(Sex, ChestPainType, RestingECG, ExerciseAngina, ST_Slope,HeartDisease)
+
+str(heart_disease)
+```
+

@@ -1,0 +1,96 @@
+```{r}
+library("cluster")
+library(ggplot2)
+library("factoextra")
+library("dendextend")
+library(tidyverse)
+library(tidymodels)
+library("dendextend")
+```
+
+```{r}
+trucks <- read_csv("trucks-1.csv")
+```
+```{r}
+trucks = trucks %>%
+  drop_na()
+```
+
+```{r}
+kmeans_recipe = recipe(~ Distance + Speeding, trucks) 
+
+trucks_dummy = kmeans_recipe %>% 
+  step_dummy(all_nominal(), one_hot = TRUE) %>%
+  step_scale(all_numeric()) %>%
+  step_center(all_numeric()) 
+
+trucks_dummy = prep(trucks_dummy, trucks) #prepares the recipe
+
+trucks_cleaned = bake(trucks_dummy, trucks) #applies the recipe and yields a data frame
+```
+
+```{r}
+#we have two data frames now, one scaled and dummied and one with just row-wise deletion of missingness
+summary(trucks_cleaned)
+summary(trucks)
+```
+```{r}
+set.seed(1234)
+clusts = 
+  tibble(k = 1:8) %>%
+  mutate(
+    kclust = map(k, ~kmeans(trucks_cleaned, .x)),
+    tidied = map(kclust, tidy),
+    glanced = map(kclust, glance),
+    augmented = map(kclust, augment, trucks_cleaned)
+  )
+
+clusts
+```
+```{r}
+clusters = 
+  clusts %>%
+  unnest(cols = c(tidied))
+
+assignments = 
+  clusts %>% 
+  unnest(cols = c(augmented))
+
+clusterings = 
+  clusts %>%
+  unnest(cols = c(glanced))
+```
+
+```{r}
+p1 = 
+  ggplot(assignments, aes(x = Distance, y = Speeding)) +
+  geom_point(aes(color = .cluster), alpha = 0.8) + 
+  facet_wrap(~ k)
+p1
+```
+
+```{r}
+ggplot(clusterings, aes(k, tot.withinss)) +
+  geom_line() +
+  geom_point()
+```
+Let's try 4 clusters  
+```{r}
+set.seed(1234)
+clusters = kmeans(trucks_cleaned, 4)
+```
+Attach cluster to dataset
+```{r}
+trucks = augment(clusters, trucks)
+str(trucks)
+```
+Plots
+```{r}
+ggplot(trucks, aes(x=Distance,y=Speeding,color=factor(.cluster))) + geom_point() 
+```
+
+```{r}
+trucks_scaled = scale(trucks) 
+summary(trucks_scaled)
+#scale works by calculating the mean and standard deviation of the entire variable, then scales each element by subtracting the mean and dividing by the standard deviation  
+```

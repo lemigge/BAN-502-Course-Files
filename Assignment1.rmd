@@ -1,0 +1,41 @@
+```{r}
+library(tidyverse)
+library(tidymodels)
+library(titanic)
+library(mice)
+library(VIM)
+library(naniar)
+library(skimr)
+library(UpSetR)
+```
+```{r}
+class_grades <- read_csv("class-grades.csv")
+```
+```{r}
+str(class_grades)
+summary(class_grades)
+skim(class_grades)
+```
+```{r}
+vim_plot = aggr(class_grades, numbers = TRUE, prop = c(TRUE, FALSE), cex.axis=.7)
+```
+```{r}
+vis_miss(class_grades)
+```
+```{r}
+grades_rowdel = class_grades %>% drop_na()
+skim(grades_rowdel)
+```
+```{r}
+set.seed(123)
+imp_miss = mice(class_grades, m=5, method = 'pmm', printFlag = FALSE)
+summary(imp_miss)
+```
+```{r}
+densityplot(imp_miss, ~Final)
+```
+```{r}
+grades_complete = complete(imp_miss)
+summary(grades_complete)
+```
+

@@ -1,0 +1,39 @@
+```{r}
+install.packages("tidyverse")
+library("tidyverse")
+
+diamonds <- diamonds
+view(diamonds)
+nrow(diamonds)
+ncol(diamonds)
+```
+```{r}
+ggplot(diamonds, aes(x=carat, y=price)) + 
+  geom_point()+
+  facet_grid(color ~ .)
+```
+```{r}
+ggplot(diamonds, aes(x=cut, y=carat)) + 
+  geom_point()
+```
+
+```{r}
+library(readr)
+InventoryData <- read_csv("InventoryData.csv")
+View(InventoryData)
+
+mean(InventoryData$`On Hand`)
+
+inventoryA <- filter(InventoryData, Supplier == "A")
+
+inventoryA = mutate(inventoryA, OnHandRatio = `On Hand` / `Annual Demand`)
+```
+
+```{r}
+inventoryA$`Item SKU` <- as.numeric(inventoryA$`Item SKU`)
+
+avg_cost <- inventoryA %>% group_by(`Item SKU`)
+ avg_cost <- inventoryA %>% select(`Item SKU`, `Cost per Unit ($)`)
+
+```
+
